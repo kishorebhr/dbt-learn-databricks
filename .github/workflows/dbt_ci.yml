@@ -1,0 +1,34 @@
+name: jaffle_shop_ci_guardrail
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run_ci_pipeline:
+    runs-on: ubuntu-latest
+
+    env:
+      DBT_TOKEN: ${{ secrets.DATABRICKS_CI_TOKEN }} # Managed securely via GitHub Secrets
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Libraries
+        run: |
+          pip install --upgrade pip
+          pip install dbt-databricks==1.8.0
+
+      - name: Run Test Engine
+        run: |
+          dbt deps
+          # Compiles and validates modified file paths against a sandboxed test warehouse schema
+          dbt build --target dev --profiles-dir . --select state:modified+ --defer --state ./target
