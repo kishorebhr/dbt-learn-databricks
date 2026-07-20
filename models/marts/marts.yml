@@ -1,0 +1,19 @@
+version: 2
+models:
+  - name: fct_customer_orders
+    description: "Physical aggregated reporting engine for customer profiles."
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_segment
+        tests:
+          # Advanced Test: Enforce that values fall strictly within an allowed enum set
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['VIP', 'Active', 'Inactive']
+      - name: number_of_orders
+        tests:
+          # Advanced Test: Verify that orders never drop below zero
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0

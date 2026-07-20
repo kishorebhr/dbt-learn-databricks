@@ -1,0 +1,6 @@
+sources:
+  - name: stripes
+    database: raw
+    schema: stripes
+    tables:
+      - name: payments
